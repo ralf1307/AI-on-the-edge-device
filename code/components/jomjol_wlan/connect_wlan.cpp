@@ -10,6 +10,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "ClassLogFile.h"
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -21,7 +22,6 @@
 #include <iostream>
 
 #define __HIDE_PASSWORD
-
 
 
 #define EXAMPLE_ESP_MAXIMUM_RETRY  1000
@@ -112,18 +112,21 @@ void LEDBlinkTask(int _dauer, int _anz, bool _off)
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        LEDBlinkTask(200, 1, true);
-        esp_wifi_connect();
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-//        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
+    if (event_base == WIFI_EVENT) {        
+        LogFile.WriteToFile(ESP_LOG_DEBUG, TAG, "WIFI event, ID: " + std::to_string(event_id));
+        if (event_id == WIFI_EVENT_STA_START) {
+            LEDBlinkTask(200, 1, true);
             esp_wifi_connect();
-            s_retry_num++;
-            ESP_LOGI(TAG, "retrying connection to the AP");
-//        } else {
-//            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-//        }
-        ESP_LOGI(TAG,"connection to the AP failed");
+        } else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
+    //        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
+                esp_wifi_connect();
+                s_retry_num++;
+                ESP_LOGI(TAG, "retrying connection to the AP");
+    //        } else {
+    //            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+    //        }
+            ESP_LOGI(TAG,"connection to the AP failed");
+        }
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
