@@ -289,19 +289,19 @@ bool ClassFlowMQTT::doFlow(string zwtime)
             std::string json = "";
             
             if (result.length() > 0)
-                json += "{\"value\":"+result;
+                json += "{\"value\": "+result;
             else
-                json += "{\"value\":\"\"";
+                json += "{\"value\": \"\"";
 
-            json += ",\"raw\":\""+resultraw;
-            json += "\",\"error\":\""+resulterror;
+            json += ", \"raw\": \""+resultraw;
+            json += "\", \"error\": \""+resulterror;
 
             if (resultrate.length() > 0)
-                json += "\",\"rate\":"+resultrate;
+                json += "\", \"rate\": "+resultrate;
             else
-                json += "\",\"rate\":\"\"";
+                json += "\", \"rate\": \"\"";
 
-            json += ",\"timestamp\":\""+resulttimestamp+"\"}";
+            json += ", \"timestamp\": \""+resulttimestamp+"\"}";
 
             MQTTPublish(namenumber + "json", json, SetRetainFlag);
         }
